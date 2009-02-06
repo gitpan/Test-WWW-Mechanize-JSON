@@ -1,0 +1,6 @@
+Revision history for Perl extension Test::WWW::Mechanize::JSON.
+
+0.01  Fri Feb  6 11:29:03 2009
+	- original version; created by h2xs 1.23 with options
+		-X -n Test::WWW::Mechanize::JSON
+
