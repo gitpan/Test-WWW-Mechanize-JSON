@@ -3,40 +3,41 @@ use warnings;
 
 package Test::WWW::Mechanize::JSON;
 
-our $VERSION = 0.1; # do { my @r = ( q$Revision: 15311 $ =~ /\d+/g ); sprintf "%d." . "%03d" x $#r, @r };
-
-=head1 NAME
-
-Test::WWW::Mechanize::JSON - Adds a JSON method to WWW::Mechanize::Test
-
-=head1 DESCRIPTION
-
-Extends L<Test::WWW::Mechanize|Test::WWW::Mechanize>
-to test JSON responses are valid.
-
-=head1 DEPENDENCIES
-
-C<L<Test::WWW::Mechanize|Test::WWW::Mechanize>>,
-C<L<JSON|JSON>>
-
-=cut
+our $VERSION = 0.2;
 
 use base "Test::WWW::Mechanize";
 use JSON;
 
-#
-# Add a method to Test::WWW::Mechanize (a Test::Builder sub-class)
-# to provide a json_ok test
-#
+=head1 NAME
 
-=head1 METHODS: HTTP VERBS
+Test::WWW::Mechanize::JSON - add a JSON method to the super-class
 
-=head2 $mech->json_ok($desc)
+=head1 SYNOPSIS
+
+	use Test::More 'no_plan';
+	use_ok("Test::WWW::Mechanize::JSON") or BAIL_OUT;
+	my $MECH = Test::WWW::Mechanize::JSON->new(
+		noproxy => 1,
+		etc     => 'other-params-for-Test::WWW::Mechanize',
+	);
+	$MECH->get('http://example.com/json');
+	my $json_as_perl = $MECH->json_ok or BAIL_OUT Dumper $MECH->response;
+	$MECH->diag_json;
+
+=head1 DESCRIPTION
+
+Extends L<Test::WWW::Mechanize|Test::WWW::Mechanize>
+to test the JSON script and JSON output.
+
+=head2 METHODS: HTTP VERBS
+
+=head3 $mech->json_ok($desc)
 
 Tests that the last received resopnse is valid JSON.
 
 A default description of "Got JSON from $url"
-or "Not JSON from $url" is used if none if provided.
+or "Not JSON from $url"
+is used if none if provided.
 
 Returns the L<JSON|JSON> object, that you may perform
 further tests upon it.
@@ -67,7 +68,7 @@ sub json_ok {
 }
 
 
-=head2 $mech->diag_json
+=head3 $mech->diag_json
 
 Like L<diag|Test::More/diag>, but renders the JSON of the last request
 with indentation.
@@ -91,6 +92,8 @@ sub diag_json {
 	};
 	warn $@ if $@;
 }
+
+1;
 
 =head1 AUTHOR AND COPYRIGHT
 
