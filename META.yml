@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               Test-WWW-Mechanize-JSON
-version:            0.4
+version:            0.5
 abstract:           add a JSON method to the super-class
 author:
     - Lee Goddard <lgoddard@cpan.org>

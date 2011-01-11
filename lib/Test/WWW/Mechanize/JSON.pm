@@ -3,7 +3,7 @@ use warnings;
 
 package Test::WWW::Mechanize::JSON;
 
-our $VERSION = 0.4;
+our $VERSION = 0.5;
 
 use parent "Test::WWW::Mechanize";
 use JSON::Any;
@@ -45,7 +45,7 @@ further tests upon it.
 =cut
 
 sub json_ok {
-	my ($self, $desc, $text) = @_;
+	my ($self, $desc) = @_;
 	return $self->_json_ok( $desc, $self->content );
 }
 
@@ -57,20 +57,43 @@ As C<$mech->json_ok($desc)> but examines the C<x-json> header.
 =cut
 
 sub x_json_ok {
-	my ($self, $desc, $text) = @_;
+	my ($self, $desc) = @_;
 	return $self->_json_ok( 
 		$desc, 
 		$self->response->headers->{'x-json'}
 	);
 }
 
+sub json {
+	my ($self, $text) = @_;
+	$text ||= exists $self->response->headers->{'x-json'}?
+		$self->response->headers->{'x-json'}
+	:	$self->content;
+	my $json = eval {
+		JSON::Any->jsonToObj($text);
+	};
+	return $json;
+}
+
+=head2 any_json_ok( $desc )
+
+Like the other JSON methods, but passes if the response
+contained JSON in the content or C<x-json> header.
+
+=cut
+
+sub any_json_ok {
+	my ($self, $desc) = @_;
+	return $self->_json_ok( 
+		$desc, 
+		$self->json
+	);
+}	
+
+
 sub _json_ok {
 	my ($self, $desc, $text) = @_;
-	my $json;
-
-	eval {
-		$json = JSON::Any->jsonToObj($text);
-	};
+	my $json = $self->json( $text );
 
 	if (not $desc){
 		if (defined $json and ref $json eq 'HASH' and not $@){
@@ -109,7 +132,7 @@ sub diag_x_json {
 sub _diag_json {
 	my ($self, $text) = @_;
 	eval {
-		my $json = JSON::Any->jsonToObj( $text );
+		my $json = $self->json( $text );
 
 		if (defined $json and ref $json eq 'HASH' and not $@){
 			diag JSON::Any->objToJson;
