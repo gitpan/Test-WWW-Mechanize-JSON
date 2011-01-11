@@ -4,7 +4,7 @@ WriteMakefile(
     NAME              => 'Test::WWW::Mechanize::JSON',
     VERSION_FROM      => 'lib/Test/WWW/Mechanize/JSON.pm', # finds $VERSION
     PREREQ_PM         => {
-		JSON				 => 0,
+		JSON::Any				 => 0,
 		Test::WWW::Mechanize => 0,
 	},
     ($] >= 5.005 ? (

@@ -3,10 +3,10 @@ use warnings;
 
 package Test::WWW::Mechanize::JSON;
 
-our $VERSION = 0.2;
+our $VERSION = 0.3;
 
-use base "Test::WWW::Mechanize";
-use JSON;
+use parent "Test::WWW::Mechanize";
+use JSON::Any;
 
 =head1 NAME
 
@@ -33,7 +33,7 @@ to test the JSON script and JSON output.
 
 =head3 $mech->json_ok($desc)
 
-Tests that the last received resopnse is valid JSON.
+Tests that the last received resopnse body is valid JSON.
 
 A default description of "Got JSON from $url"
 or "Not JSON from $url"
@@ -45,23 +45,45 @@ further tests upon it.
 =cut
 
 sub json_ok {
-	my $self = shift;
-	my ($json, $desc);
+	my ($self, $desc, $text) = @_;
+	return $self->_json_ok( $desc, $self->content );
+}
+
+
+=head3 $mech->x_json_ok($desc)
+
+As C<$mech->json_ok($desc)> but examines the C<x-json> header.
+
+=cut
+
+sub x_json_ok {
+	my ($self, $desc, $text) = @_;
+	return $self->_json_ok( 
+		$desc, 
+		$self->response->headers->{'x-json'}
+	);
+}
+
+sub _json_ok {
+	my ($self, $desc, $text) = @_;
+	my $json;
 
 	eval {
 		$json = JSON::from_json(
-			$self->content,
-			{utf8 => 0}
+			$text,
+			{utf8 => $self->utf8}
 		);
 	};
 
-	if (defined $json and ref $json eq 'HASH' and not $@){
-		$desc = sprintf 'Got JSON from %s', $self->uri;
+	if (not $desc){
+		if (defined $json and ref $json eq 'HASH' and not $@){
+			$desc = sprintf 'Got JSON from %s', $self->uri;
+		}
+		else {
+			$desc = sprintf 'Not JSON from %s (%s)', $self->uri, $@;
+		}
 	}
-	else {
-		$desc = sprintf 'Not JSON from %s (%s)', $self->uri, $@;
-	}
-
+	
 	Test::Builder->new->ok( $json, $desc );
 
 	return $json || undef;
@@ -77,10 +99,22 @@ with indentation.
 
 sub diag_json {
 	my $self = shift;
+	return _diag_json( $self->content );
+}
+
+sub diag_x_json {
+	my $self = shift;
+	return _diag_json( 
+		$self->response->headers->{'x-json'}
+	);
+}
+
+sub _diag_json {
+	my ($self, $text) = @_;
 	eval {
 		my $json = JSON::from_json(
-			$self->content,
-			{utf8 => 0}
+			$text,
+			{utf8 => $self->utf8}
 		);
 
 		if (defined $json and ref $json eq 'HASH' and not $@){
@@ -93,11 +127,27 @@ sub diag_json {
 	warn $@ if $@;
 }
 
+sub utf8 {
+	return $_[0]->response->headers('content-type') =~ m{charset=\s*utf-8}? 1 : 0;
+}
+
+=head2 utf8_ok( $desc )
+
+Passes if the last response contained a C<charset=utf-8> definition in its content-type header.
+
+=cut
+
+sub utf8_ok {
+	my $self = shift;
+	my $desc = shift || 'Has a utf-8 heaer';
+	Test::Builder->new->ok( $self->utf8, $desc );
+}
+
 1;
 
 =head1 AUTHOR AND COPYRIGHT
 
-Copyright (C) Lee Goddard, 2009.
+Copyright (C) Lee Goddard, 2009/2011.
 
 Available under the same terms as Perl itself.
 
