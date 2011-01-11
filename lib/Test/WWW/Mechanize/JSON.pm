@@ -3,7 +3,7 @@ use warnings;
 
 package Test::WWW::Mechanize::JSON;
 
-our $VERSION = 0.3;
+our $VERSION = 0.4;
 
 use parent "Test::WWW::Mechanize";
 use JSON::Any;
@@ -69,10 +69,7 @@ sub _json_ok {
 	my $json;
 
 	eval {
-		$json = JSON::from_json(
-			$text,
-			{utf8 => $self->utf8}
-		);
+		$json = JSON::Any->jsonToObj($text);
 	};
 
 	if (not $desc){
@@ -112,14 +109,10 @@ sub diag_x_json {
 sub _diag_json {
 	my ($self, $text) = @_;
 	eval {
-		my $json = JSON::from_json(
-			$text,
-			{utf8 => $self->utf8}
-		);
+		my $json = JSON::Any->jsonToObj( $text );
 
 		if (defined $json and ref $json eq 'HASH' and not $@){
-			my $j = JSON->new;
-			print $j->pretty->encode( $json ),"\n";
+			diag JSON::Any->objToJson;
 		} else {
 			warn "Er...";
 		}
