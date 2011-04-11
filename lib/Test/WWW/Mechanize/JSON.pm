@@ -3,9 +3,9 @@ use warnings;
 
 package Test::WWW::Mechanize::JSON;
 
-our $VERSION = 0.5;
+our $VERSION = 0.6;
 
-use parent "Test::WWW::Mechanize";
+use base "Test::WWW::Mechanize";
 use JSON::Any;
 
 =head1 NAME
