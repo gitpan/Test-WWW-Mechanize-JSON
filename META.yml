@@ -1,7 +1,7 @@
 --- #YAML:1.0
 name:               Test-WWW-Mechanize-JSON
-version:            0.6
-abstract:           add a JSON method to the super-class
+version:            0.7
+abstract:           Add a JSON and AJAXy methods to the super-class
 author:
     - Lee Goddard <lgoddard@cpan.org>
 license:            unknown
@@ -17,7 +17,7 @@ no_index:
     directory:
         - t
         - inc
-generated_by:       ExtUtils::MakeMaker version 6.56
+generated_by:       ExtUtils::MakeMaker version 6.57_05
 meta-spec:
     url:      http://module-build.sourceforge.net/META-spec-v1.4.html
     version:  1.4

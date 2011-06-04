@@ -3,14 +3,14 @@ use warnings;
 
 package Test::WWW::Mechanize::JSON;
 
-our $VERSION = 0.6;
+our $VERSION = 0.7;
 
 use base "Test::WWW::Mechanize";
 use JSON::Any;
 
 =head1 NAME
 
-Test::WWW::Mechanize::JSON - add a JSON method to the super-class
+Test::WWW::Mechanize::JSON - Add a JSON and AJAXy methods to the super-class
 
 =head1 SYNOPSIS
 
@@ -27,9 +27,70 @@ Test::WWW::Mechanize::JSON - add a JSON method to the super-class
 =head1 DESCRIPTION
 
 Extends L<Test::WWW::Mechanize|Test::WWW::Mechanize>
-to test the JSON script and JSON output.
+to test JSON content in response bodies and C<x-json> headers.
+
+It adds a few HTTP verbs to Mechanize, for convenience.
 
 =head2 METHODS: HTTP VERBS
+
+=cut
+
+=head3 $mech->put
+
+An HTTP 'put' request, using L<HTTP::Request::Common|HTTP::Request::Common>.
+
+=cut
+
+sub put {
+    require HTTP::Request::Common;
+    my ($self, @parameters) = @_;
+    my @suff = $self->_process_colonic_headers(\@parameters,1);
+    return $self->request( HTTP::Request::Common::PUT( @parameters ), @suff );
+}
+
+
+=head3 $mech->delete
+
+An HTTP 'delete' request, using L<HTTP::Request::Common|HTTP::Request::Common>.
+
+=cut
+
+sub delete {
+    require HTTP::Request::Common;
+    my ($self, @parameters) = @_;
+    my @suff = $self->_process_colonic_headers(\@parameters,1);
+    return $self->request( HTTP::Request::Common::DELETE( @parameters ), @suff );
+}
+
+
+=head3 $mech->options
+
+An HTTP 'options' request, using L<HTTP::Request::Common|HTTP::Request::Common>.
+
+=cut
+
+sub options {
+    require HTTP::Request::Common;
+    my ($self, @parameters) = @_;
+    my @suff = $self->_process_colonic_headers(\@parameters,1);
+    return $self->request( HTTP::Request::Common::_simple_req( 'OPTIONS', @parameters ), @suff );
+}
+
+
+=head3 $mech->head
+
+An HTTP 'head' request, using L<HTTP::Request::Common|HTTP::Request::Common>.
+
+=cut
+
+sub head {
+    require HTTP::Request::Common;
+    my ($self, @parameters) = @_;
+    my @suff = $self->_process_colonic_headers(\@parameters,1);
+    return $self->request( HTTP::Request::Common::_simple_req( 'OPTIONS', @parameters ), @suff );
+}
+
+=head2 METHODS: ASSERTIONS
 
 =head3 $mech->json_ok($desc)
 
@@ -112,7 +173,7 @@ sub _json_ok {
 
 =head3 $mech->diag_json
 
-Like L<diag|Test::More/diag>, but renders the JSON of the last request
+Like L<diag|Test::More/diag>, but renders the JSON of body the last request
 with indentation.
 
 =cut
@@ -121,6 +182,13 @@ sub diag_json {
 	my $self = shift;
 	return _diag_json( $self->content );
 }
+
+=head3 $mech->diag_x_json
+
+Like L<diag|Test::More/diag>, but renders the JSON 
+from the C<x-json> header of the last request with indentation.
+
+=cut
 
 sub diag_x_json {
 	my $self = shift;
@@ -143,11 +211,12 @@ sub _diag_json {
 	warn $@ if $@;
 }
 
+
 sub utf8 {
 	return $_[0]->response->headers('content-type') =~ m{charset=\s*utf-8}? 1 : 0;
 }
 
-=head2 utf8_ok( $desc )
+=head3 $mech->utf8_ok( $desc )
 
 Passes if the last response contained a C<charset=utf-8> definition in its content-type header.
 
@@ -158,6 +227,8 @@ sub utf8_ok {
 	my $desc = shift || 'Has a utf-8 heaer';
 	Test::Builder->new->ok( $self->utf8, $desc );
 }
+
+
 
 1;
 

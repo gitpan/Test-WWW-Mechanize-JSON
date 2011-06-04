@@ -1,5 +1,8 @@
 Revision history for Perl extension Test::WWW::Mechanize::JSON.
 
+0.7
+	- Added extra HTTP verbs for AJAX CRUD project.
+	
 0.06	2011-04-10
 	- Removed 'use parent'
 	
