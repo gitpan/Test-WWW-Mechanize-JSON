@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               Test-WWW-Mechanize-JSON
-version:            0.7
+version:            0.71
 abstract:           Add a JSON and AJAXy methods to the super-class
 author:
     - Lee Goddard <lgoddard@cpan.org>

@@ -3,10 +3,11 @@ use warnings;
 
 package Test::WWW::Mechanize::JSON;
 
-our $VERSION = 0.7;
+our $VERSION = 0.71;
 
 use base "Test::WWW::Mechanize";
 use JSON::Any;
+
 
 =head1 NAME
 
@@ -39,13 +40,22 @@ It adds a few HTTP verbs to Mechanize, for convenience.
 
 An HTTP 'put' request, using L<HTTP::Request::Common|HTTP::Request::Common>.
 
+At the time of wriring, modules that rely on L<HTTP::Request::Common|HTTP::Request::Common> 
+treat C<PUT> as a type of C<GET>, when the spec says it is really a type of C<POST>:
+
+	The fundamental difference between the POST and PUT requests is reflected in the different meaning of the Request-URI.
+	                           -- HTTP specification
+
 =cut
 
 sub put {
-    require HTTP::Request::Common;
     my ($self, @parameters) = @_;
     my @suff = $self->_process_colonic_headers(\@parameters,1);
-    return $self->request( HTTP::Request::Common::PUT( @parameters ), @suff );
+    
+	require HTTP::Request::Common;
+	my $r = HTTP::Request::Common::POST(@parameters);
+	$r->{_method} = 'PUT';
+    return $self->request( $r, @suff );
 }
 
 
@@ -228,6 +238,8 @@ sub utf8_ok {
 	Test::Builder->new->ok( $self->utf8, $desc );
 }
 
+
+	
 
 
 1;

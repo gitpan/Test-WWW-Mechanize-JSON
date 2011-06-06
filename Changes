@@ -1,5 +1,9 @@
 Revision history for Perl extension Test::WWW::Mechanize::JSON.
 
+0.71
+	- Updated so use of HTTP::Request::Common::PUT works like POST,
+	  rather than like GET, to conform to HTTP spec.
+	
 0.7
 	- Added extra HTTP verbs for AJAX CRUD project.
 	
