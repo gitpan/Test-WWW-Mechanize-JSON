@@ -3,7 +3,7 @@ use warnings;
 
 package Test::WWW::Mechanize::JSON;
 
-our $VERSION = 0.71;
+our $VERSION = 0.72;
 
 use base "Test::WWW::Mechanize";
 use JSON::Any;
@@ -97,7 +97,7 @@ sub head {
     require HTTP::Request::Common;
     my ($self, @parameters) = @_;
     my @suff = $self->_process_colonic_headers(\@parameters,1);
-    return $self->request( HTTP::Request::Common::_simple_req( 'OPTIONS', @parameters ), @suff );
+    return $self->request( HTTP::Request::Common::_simple_req( 'HEAD', @parameters ), @suff );
 }
 
 =head2 METHODS: ASSERTIONS
