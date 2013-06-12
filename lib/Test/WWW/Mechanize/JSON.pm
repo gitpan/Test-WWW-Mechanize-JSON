@@ -3,9 +3,10 @@ use warnings;
 
 package Test::WWW::Mechanize::JSON;
 
-our $VERSION = 0.72;
+our $VERSION = 0.73;
 
 use base "Test::WWW::Mechanize";
+use Test::More;
 use JSON::Any;
 
 
@@ -38,20 +39,22 @@ It adds a few HTTP verbs to Mechanize, for convenience.
 
 =head3 $mech->put
 
-An HTTP 'put' request, using L<HTTP::Request::Common|HTTP::Request::Common>.
+An HTTP 'put' request, extending L<HTTP::Request::Common|HTTP::Request::Common>.
 
-At the time of wriring, modules that rely on L<HTTP::Request::Common|HTTP::Request::Common> 
+At the time of wriring, modules that rely on L<HTTP::Request::Common|HTTP::Request::Common>
 treat C<PUT> as a type of C<GET>, when the spec says it is really a type of C<POST>:
 
-	The fundamental difference between the POST and PUT requests is reflected in the different meaning of the Request-URI.
-	                           -- HTTP specification
+	The fundamental difference between the POST and PUT
+	requests is reflected in the different meaning of
+	the Request-URI.
+	                HTTP specification
 
 =cut
 
 sub put {
     my ($self, @parameters) = @_;
     my @suff = $self->_process_colonic_headers(\@parameters,1);
-    
+
 	require HTTP::Request::Common;
 	my $r = HTTP::Request::Common::POST(@parameters);
 	$r->{_method} = 'PUT';
@@ -61,7 +64,7 @@ sub put {
 
 =head3 $mech->delete
 
-An HTTP 'delete' request, using L<HTTP::Request::Common|HTTP::Request::Common>.
+An HTTP 'delete' request, extending L<HTTP::Request::Common|HTTP::Request::Common>.
 
 =cut
 
@@ -75,7 +78,7 @@ sub delete {
 
 =head3 $mech->options
 
-An HTTP 'options' request, using L<HTTP::Request::Common|HTTP::Request::Common>.
+An HTTP 'options' request, extending L<HTTP::Request::Common|HTTP::Request::Common>.
 
 =cut
 
@@ -129,8 +132,8 @@ As C<$mech->json_ok($desc)> but examines the C<x-json> header.
 
 sub x_json_ok {
 	my ($self, $desc) = @_;
-	return $self->_json_ok( 
-		$desc, 
+	return $self->_json_ok(
+		$desc,
 		$self->response->headers->{'x-json'}
 	);
 }
@@ -155,11 +158,11 @@ contained JSON in the content or C<x-json> header.
 
 sub any_json_ok {
 	my ($self, $desc) = @_;
-	return $self->_json_ok( 
-		$desc, 
+	return $self->_json_ok(
+		$desc,
 		$self->json
 	);
-}	
+}
 
 
 sub _json_ok {
@@ -174,7 +177,7 @@ sub _json_ok {
 			$desc = sprintf 'Not JSON from %s (%s)', $self->uri, $@;
 		}
 	}
-	
+
 	Test::Builder->new->ok( $json, $desc );
 
 	return $json || undef;
@@ -190,19 +193,19 @@ with indentation.
 
 sub diag_json {
 	my $self = shift;
-	return _diag_json( $self->content );
+	return $self->_diag_json( $self->content );
 }
 
 =head3 $mech->diag_x_json
 
-Like L<diag|Test::More/diag>, but renders the JSON 
+Like L<diag|Test::More/diag>, but renders the JSON
 from the C<x-json> header of the last request with indentation.
 
 =cut
 
 sub diag_x_json {
 	my $self = shift;
-	return _diag_json( 
+	return $self->_diag_json(
 		$self->response->headers->{'x-json'}
 	);
 }
@@ -211,11 +214,14 @@ sub _diag_json {
 	my ($self, $text) = @_;
 	eval {
 		my $json = $self->json( $text );
-
-		if (defined $json and ref $json eq 'HASH' and not $@){
-			diag JSON::Any->objToJson;
-		} else {
-			warn "Er...";
+		if (not defined $json){
+			warn "Not a $json objet";
+		}
+		elsif (not ref $json or ref $json ne 'HASH'){
+			warn "Not an JSON object";
+		}
+		else {
+			warn "Not a JSON object?";
 		}
 	};
 	warn $@ if $@;
@@ -239,7 +245,7 @@ sub utf8_ok {
 }
 
 
-	
+
 
 
 1;
